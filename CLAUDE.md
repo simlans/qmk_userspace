@@ -119,6 +119,39 @@ The lily58 keymap demonstrates a pattern for OS-specific symbols:
 - Define macOS variants with `_MAC` suffix
 - Switch between them in keymap.c based on OS detection
 
+## Git Workflow
+
+### Creating Commits
+
+When creating commits, follow these guidelines:
+
+1. **Check status first**: Run parallel `git status`, `git diff`, and `git log` commands to understand current state and commit message style
+2. **Use conventional commit format**: Follow the existing commit style seen in the repository
+   - `feat:` for new features
+   - `fix:` for bug fixes
+   - `refactor:` for code refactoring
+   - `docs:` for documentation changes
+3. **Combine git operations**: Stage files and create commit in a single command chain
+4. **Multi-line commit messages**: Use HEREDOC syntax for detailed commit messages
+
+Example commit command:
+```bash
+git add file1 file2 file3 && git commit -m "$(cat <<'EOF'
+feat: add OS-specific static RGB colors for gmmk pro
+
+Replace rainbow cycling RGB effect with static colors based on detected OS:
+- macOS/iOS: White
+- Windows: Blue
+- Linux: Orange
+- Unknown OS: Red
+
+Additional technical details about the implementation...
+EOF
+)" && git status
+```
+
+**Important**: Always verify the commit was created successfully by checking `git status` at the end.
+
 ## GitHub Actions
 
 Firmware builds automatically on push via `.github/workflows/build_binaries.yaml`:
