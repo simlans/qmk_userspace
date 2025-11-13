@@ -65,30 +65,40 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 };
 
+void keyboard_post_init_user(void) {
+    // Set RGB Matrix to solid color mode
+    rgb_matrix_enable();
+    rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
+}
+
 bool process_detected_host_os_kb(os_variant_t detected_os) {
     if (!process_detected_host_os_user(detected_os)) {
         return false;
     }
+
+    // Ensure we're in solid color mode
+    rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
+
     switch (detected_os) {
         case OS_MACOS:
         case OS_IOS:
             set_single_default_layer(MACOS_LAYER);
-            rgb_matrix_set_color_all(255,255,255);
+            rgb_matrix_sethsv_noeeprom(HSV_OS_MACOS);
             break;
         case OS_WINDOWS:
             set_single_default_layer(WIN_LAYER_DEF_LAYER);
-            rgb_matrix_set_color_all(0,0,255);
+            rgb_matrix_sethsv_noeeprom(HSV_OS_WINDOWS);
             break;
         case OS_LINUX:
             set_single_default_layer(WIN_LAYER_DEF_LAYER);
-            rgb_matrix_set_color_all(255,165,0);
+            rgb_matrix_sethsv_noeeprom(HSV_OS_LINUX);
             break;
         case OS_UNSURE:
             set_single_default_layer(WIN_LAYER_DEF_LAYER);
-            rgb_matrix_set_color_all(255,0,0);
+            rgb_matrix_sethsv_noeeprom(HSV_OS_UNSURE);
             break;
     }
-    
+
     return true;
 }
 
