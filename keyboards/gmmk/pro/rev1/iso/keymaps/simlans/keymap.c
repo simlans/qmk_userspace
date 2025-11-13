@@ -102,6 +102,26 @@ bool process_detected_host_os_kb(os_variant_t detected_os) {
     return true;
 }
 
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    // Check if Caps Lock is active
+    if (host_keyboard_led_state().caps_lock) {
+        // Define side LED strips using the LED matrix mapping
+        const uint8_t side_leds_left[] = SIDE_LED_LEFT;
+        const uint8_t side_leds_right[] = SIDE_LED_RIGHT;
+
+        // Set left side strip to red
+        for (uint8_t i = 0; i < SIDE_LED_COUNT; i++) {
+            rgb_matrix_set_color(side_leds_left[i], 255, 0, 0); // Red (R, G, B)
+        }
+
+        // Set right side strip to red
+        for (uint8_t i = 0; i < SIDE_LED_COUNT; i++) {
+            rgb_matrix_set_color(side_leds_right[i], 255, 0, 0); // Red (R, G, B)
+        }
+    }
+    return false;
+}
+
 #ifdef ENCODER_MAP_ENABLE
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [WIN_LAYER_DEF_LAYER] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
