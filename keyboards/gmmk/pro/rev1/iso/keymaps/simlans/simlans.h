@@ -49,6 +49,9 @@ enum layer_number {
 // Placeholder for "no change" or "use default"
 #define ______ LED_OFF
 
+// RGB values for rgb_matrix_set_color() - expanded from LED_RED____
+#define LED_RED_RGB 255, 0, 0
+
 // Ledmap structure: array of RGB values for each LED
 typedef struct {
     uint8_t r;

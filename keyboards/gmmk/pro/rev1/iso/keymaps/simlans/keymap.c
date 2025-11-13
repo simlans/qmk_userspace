@@ -181,12 +181,12 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
         // Set left side strip to red
         for (uint8_t i = 0; i < SIDE_LED_COUNT; i++) {
-            rgb_matrix_set_color(side_leds_left[i], 255, 0, 0); // Red (R, G, B)
+            rgb_matrix_set_color(side_leds_left[i], LED_RED_RGB);
         }
 
         // Set right side strip to red
         for (uint8_t i = 0; i < SIDE_LED_COUNT; i++) {
-            rgb_matrix_set_color(side_leds_right[i], 255, 0, 0); // Red (R, G, B)
+            rgb_matrix_set_color(side_leds_right[i], LED_RED_RGB);
         }
     }
 
