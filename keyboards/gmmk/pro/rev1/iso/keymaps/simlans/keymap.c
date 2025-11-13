@@ -16,6 +16,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "simlans.h"
 
+// Track the current base layer for LED colors
+static uint8_t current_base_layer = WIN_LAYER_DEF_LAYER;
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 //      ESC      F1       F2       F3       F4       F5       F6       F7       F8       F9       F10      F11      F12	     Del           Rotary(Mute)
@@ -65,6 +68,53 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 };
 
+// LED Color Maps for each layer
+// Use RGB_MATRIX_LAYOUT_LEDMAP to define colors in a visual matrix format
+const ledmap PROGMEM ledmaps[][RGB_MATRIX_LED_COUNT] = {
+
+//      LU = Left Underglow, RU = Right Underglow
+//      LU_1                                                                                                                                              RU_1
+//      LU_2       ESC     F1      F2      F3      F4      F5      F6      F7      F8      F9      F10     F11     F12     Del                Home        RU_2
+//      LU_3       ~       1       2       3       4       5       6       7       8       9       0        -      (=)     BackSpc            PgUp        RU_3
+//      LU_4       Tab     Q       W       E       R       T       Y       U       I       O       P       [       ]                                      RU_4
+//      LU_5       Caps    A       S       D       F       G       H       J       K       L       ;       "       #       Enter              PgDn        RU_5
+//      LU_6       Sh_L    /       Z       X       C       V       B       N       M       ,       .       ?               Sh_R      Up       End         RU_6
+//      LU_7       Ct_L    Win_L   Alt_L                           SPACE                           Alt_R   FN      Ct_R    Left      Down     Right       RU_7
+//      LU_8                                                                                                                                              RU_8
+    [WIN_LAYER_DEF_LAYER] = RGB_MATRIX_LAYOUT_LEDMAP(
+        LED_BLUE___,                                                                                                                                                                                                                 LED_BLUE___,
+        LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___,              LED_BLUE___, LED_BLUE___,
+        LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___,              LED_BLUE___, LED_BLUE___,
+        LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___,                                        LED_BLUE___,
+        LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___,              LED_BLUE___, LED_BLUE___,
+        LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___,              LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___,
+        LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___,                                        LED_BLUE___,                                        LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___,
+        LED_BLUE___,                                                                                                                                                                                                                 LED_BLUE___
+    ),
+
+    [MACOS_LAYER] = RGB_MATRIX_LAYOUT_LEDMAP(
+        LED_WHITE__,                                                                                                                                                                                                                 LED_WHITE__,
+        LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__,              LED_WHITE__, LED_WHITE__,
+        LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__,              LED_WHITE__, LED_WHITE__,
+        LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__,                                        LED_WHITE__,
+        LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__,              LED_WHITE__, LED_WHITE__,
+        LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__,              LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__,
+        LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__,                                        LED_WHITE__,                                        LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__, LED_WHITE__,
+        LED_WHITE__,                                                                                                                                                                                                                 LED_WHITE__
+    ),
+
+    [FN_LAYER] = RGB_MATRIX_LAYOUT_LEDMAP(
+        LED_GREEN__,                                                                                                                                                                                                                 LED_GREEN__,
+        LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__,              LED_GREEN__, LED_GREEN__,
+        LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__,              LED_GREEN__, LED_GREEN__,
+        LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__,                                        LED_GREEN__,
+        LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__,              LED_GREEN__, LED_GREEN__,
+        LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__,              LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__,
+        LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__,                                        LED_GREEN__,                                        LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__, LED_GREEN__,
+        LED_GREEN__,                                                                                                                                                                                                                 LED_GREEN__
+    ),
+};
+
 void keyboard_post_init_user(void) {
     // Set RGB Matrix to solid color mode
     rgb_matrix_enable();
@@ -82,20 +132,24 @@ bool process_detected_host_os_kb(os_variant_t detected_os) {
     switch (detected_os) {
         case OS_MACOS:
         case OS_IOS:
+            current_base_layer = MACOS_LAYER;
             set_single_default_layer(MACOS_LAYER);
-            rgb_matrix_sethsv_noeeprom(HSV_OS_MACOS);
+            //rgb_matrix_sethsv_noeeprom(HSV_OS_MACOS);
             break;
         case OS_WINDOWS:
+            current_base_layer = WIN_LAYER_DEF_LAYER;
             set_single_default_layer(WIN_LAYER_DEF_LAYER);
-            rgb_matrix_sethsv_noeeprom(HSV_OS_WINDOWS);
+            //rgb_matrix_sethsv_noeeprom(HSV_OS_WINDOWS);
             break;
         case OS_LINUX:
+            current_base_layer = WIN_LAYER_DEF_LAYER;
             set_single_default_layer(WIN_LAYER_DEF_LAYER);
-            rgb_matrix_sethsv_noeeprom(HSV_OS_LINUX);
+            //rgb_matrix_sethsv_noeeprom(HSV_OS_LINUX);
             break;
         case OS_UNSURE:
+            current_base_layer = WIN_LAYER_DEF_LAYER;
             set_single_default_layer(WIN_LAYER_DEF_LAYER);
-            rgb_matrix_sethsv_noeeprom(HSV_OS_UNSURE);
+            //rgb_matrix_sethsv_noeeprom(HSV_OS_UNSURE);
             break;
     }
 
@@ -103,9 +157,25 @@ bool process_detected_host_os_kb(os_variant_t detected_os) {
 }
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-    // Check if Caps Lock is active
+    // Get current active layer, or use base layer if none active
+    uint8_t layer = get_highest_layer(layer_state);
+    if (layer == 0) {
+        layer = current_base_layer;
+    }
+
+    // Apply layer-specific LED colors from ledmap
+    if (layer < sizeof(ledmaps) / sizeof(ledmaps[0])) {
+        for (uint8_t i = led_min; i < led_max; i++) {
+            ledmap led = ledmaps[layer][i];
+            // Only set color if it's not RGB_OFF (which means "no change")
+            if (led.r != 0 || led.g != 0 || led.b != 0) {
+                rgb_matrix_set_color(i, led.r, led.g, led.b);
+            }
+        }
+    }
+
+    // Override with Caps Lock indicator on side LEDs
     if (host_keyboard_led_state().caps_lock) {
-        // Define side LED strips using the LED matrix mapping
         const uint8_t side_leds_left[] = SIDE_LED_LEFT;
         const uint8_t side_leds_right[] = SIDE_LED_RIGHT;
 
@@ -119,6 +189,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             rgb_matrix_set_color(side_leds_right[i], 255, 0, 0); // Red (R, G, B)
         }
     }
+
     return false;
 }
 

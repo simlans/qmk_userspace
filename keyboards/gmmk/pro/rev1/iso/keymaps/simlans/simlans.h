@@ -2,20 +2,10 @@
 #include QMK_KEYBOARD_H
 
 enum layer_number {
-  WIN_LAYER_DEF_LAYER = 0,
-  MACOS_LAYER,
-  FN_LAYER,
+    WIN_LAYER_DEF_LAYER = 0,
+    MACOS_LAYER,
+    FN_LAYER,
 };
-
-// RGB Matrix Colors (HSV: Hue, Saturation, Value)
-// Hue: 0-255 color wheel position
-// Saturation: 0-255 color intensity (0=white, 255=full color)
-// Value: 0-255 brightness (0=off, 255=max brightness)
-
-#define HSV_OS_MACOS   0,   0,   255  // macOS/iOS: White
-#define HSV_OS_WINDOWS 170, 255, 255  // Windows: Blue
-#define HSV_OS_LINUX   28,  255, 255  // Linux: Orange
-#define HSV_OS_UNSURE  0,   255, 255  // Unknown OS: Red
 
 // RGB LED Matrix Layout for GMMK Pro Rev1 ISO
 // Source: Reddit community mapping
@@ -38,6 +28,36 @@ enum layer_number {
 // Total side LEDs: 16
 
 // Array of side LED indices for easy iteration
-#define SIDE_LED_LEFT  {68, 71, 74, 77, 81, 84, 88, 92}
+#define SIDE_LED_LEFT {68, 71, 74, 77, 81, 84, 88, 92}
 #define SIDE_LED_RIGHT {69, 72, 75, 78, 82, 85, 89, 93}
-#define SIDE_LED_COUNT  8
+#define SIDE_LED_COUNT 8
+
+// LED Color definitions for ledmap (using custom prefix to avoid conflicts)
+#define LED_OFF____ {0, 0, 0}
+#define LED_RED____ {255, 0, 0}
+#define LED_GREEN__ {0, 255, 0}
+#define LED_BLUE___ {0, 0, 255}
+#define LED_YELLOW_ {255, 255, 0}
+#define LED_CYAN___ {0, 255, 255}
+#define LED_MAGENTA {255, 0, 255}
+#define LED_WHITE__ {255, 255, 255}
+#define LED_ORANGE_ {255, 165, 0}
+#define LED_GOLD___ {255, 215, 0}
+#define LED_PURPLE_ {128, 0, 128}
+#define LED_PINK___ {255, 192, 203}
+
+// Placeholder for "no change" or "use default"
+#define ______ LED_OFF
+
+// Ledmap structure: array of RGB values for each LED
+typedef struct {
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+} ledmap;
+
+// RGB Matrix Layout Macro
+// Maps visual keyboard layout to LED indices
+// Based on GMMK Pro Rev1 ISO LED mapping
+#define RGB_MATRIX_LAYOUT_LEDMAP(lu1, ru1, lu2, k00, k06, k12, k18, k23, k28, k34, k39, k44, k50, k56, k61, k66, k70, k73, ru2, lu3, k01, k07, k13, k19, k24, k29, k35, k40, k45, k51, k57, k62, k79, k86, k76, ru3, lu4, k02, k08, k14, k20, k25, k30, k36, k41, k46, k52, k58, k63, k90, ru4, lu5, k03, k09, k15, k21, k26, k31, k37, k42, k47, k53, k59, k64, k95, k97, k87, ru5, lu6, k04, k67, k10, k16, k22, k27, k32, k38, k43, k48, k54, k60, k91, k94, k83, ru6, lu7, k05, k11, k17, k33, k49, k55, k65, k96, k98, k80, ru7, lu8, ru8) \
+    {k00, k01, k02, k03, k04, k05, k06, k07, k08, k09, k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k20, k21, k22, k23, k24, k25, k26, k27, k28, k29, k30, k31, k32, k33, k34, k35, k36, k37, k38, k39, k40, k41, k42, k43, k44, k45, k46, k47, k48, k49, k50, k51, k52, k53, k54, k55, k56, k57, k58, k59, k60, k61, k62, k63, k64, k65, k66, k67, lu1, ru1, k70, lu2, ru2, k73, lu3, ru3, k76, lu4, ru4, k79, k80, lu5, ru5, k83, lu6, ru6, k86, k87, lu7, ru7, k90, k91, lu8, ru8, k94, k95, k96, k97, k98}
