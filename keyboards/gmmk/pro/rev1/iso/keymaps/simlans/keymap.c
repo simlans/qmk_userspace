@@ -16,8 +16,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "simlans.h"
 
+// clang-format off
+
 // Track the current base layer for LED colors
-static uint8_t current_base_layer = WIN_LAYER_DEF_LAYER;
+static uint8_t current_base_layer = DEFAULT_LAYER;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -40,7 +42,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // This keyboard defaults to 6KRO instead of NKRO for compatibility reasons (some KVMs and BIOSes are incompatible with NKRO).
     // Since this is, among other things, a "gaming" keyboard, a key combination to enable NKRO on the fly is provided for convenience.
     // Press Fn+N to toggle between 6KRO and NKRO. This setting is persisted to the EEPROM and thus persists between restarts.
-    [WIN_LAYER_DEF_LAYER] = LAYOUT(
+    [DEFAULT_LAYER] = LAYOUT(
         KC_ESC,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,       KC_F12,  KC_DEL,           KC_MUTE,
         KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,      KC_EQL,  KC_BSPC,          KC_HOME,
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC,      KC_RBRC,                   KC_PGUP,
@@ -81,7 +83,7 @@ const ledmap PROGMEM ledmaps[][RGB_MATRIX_LED_COUNT] = {
 //      LU_6       Sh_L    /       Z       X       C       V       B       N       M       ,       .       ?               Sh_R      Up       End         RU_6
 //      LU_7       Ct_L    Win_L   Alt_L                           SPACE                           Alt_R   FN      Ct_R    Left      Down     Right       RU_7
 //      LU_8                                                                                                                                              RU_8
-    [WIN_LAYER_DEF_LAYER] = RGB_MATRIX_LAYOUT_LEDMAP(
+    [DEFAULT_LAYER] = RGB_MATRIX_LAYOUT_LEDMAP(
         LED_BLUE___,                                                                                                                                                                                                                 LED_BLUE___,
         LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___,              LED_BLUE___, LED_BLUE___,
         LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___, LED_BLUE___,              LED_BLUE___, LED_BLUE___,
@@ -134,22 +136,18 @@ bool process_detected_host_os_kb(os_variant_t detected_os) {
         case OS_IOS:
             current_base_layer = MACOS_LAYER;
             set_single_default_layer(MACOS_LAYER);
-            //rgb_matrix_sethsv_noeeprom(HSV_OS_MACOS);
             break;
         case OS_WINDOWS:
-            current_base_layer = WIN_LAYER_DEF_LAYER;
-            set_single_default_layer(WIN_LAYER_DEF_LAYER);
-            //rgb_matrix_sethsv_noeeprom(HSV_OS_WINDOWS);
+            current_base_layer = DEFAULT_LAYER;
+            set_single_default_layer(DEFAULT_LAYER);
             break;
         case OS_LINUX:
-            current_base_layer = WIN_LAYER_DEF_LAYER;
-            set_single_default_layer(WIN_LAYER_DEF_LAYER);
-            //rgb_matrix_sethsv_noeeprom(HSV_OS_LINUX);
+            current_base_layer = DEFAULT_LAYER;
+            set_single_default_layer(DEFAULT_LAYER);
             break;
         case OS_UNSURE:
-            current_base_layer = WIN_LAYER_DEF_LAYER;
-            set_single_default_layer(WIN_LAYER_DEF_LAYER);
-            //rgb_matrix_sethsv_noeeprom(HSV_OS_UNSURE);
+            current_base_layer = DEFAULT_LAYER;
+            set_single_default_layer(DEFAULT_LAYER);
             break;
     }
 
@@ -195,8 +193,10 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
 #ifdef ENCODER_MAP_ENABLE
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
-    [WIN_LAYER_DEF_LAYER] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
+    [DEFAULT_LAYER] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
     [MACOS_LAYER] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
     [FN_LAYER] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS) }
 };
 #endif
+
+// clang-format on
