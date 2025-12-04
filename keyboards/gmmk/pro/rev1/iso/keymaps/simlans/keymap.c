@@ -21,6 +21,147 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Track the current base layer for LED colors
 static uint8_t current_base_layer = DEFAULT_LAYER;
 
+// OS detection state - LEDs stay off until OS is detected
+static bool os_detected = false;
+static uint32_t keyboard_init_time = 0;
+
+// Visor effect state
+static bool visor_effect_active = false;
+static uint32_t visor_effect_start_time = 0;
+
+// LED column distances from center (0 = center, higher = further out)
+// Based on physical keyboard layout - Space bar area is center
+static const uint8_t PROGMEM led_distance_from_center[RGB_MATRIX_LED_COUNT] = {
+    // Row 0: ESC to Del (indices 0, 6, 12, 18, 23, 28, 34, 39, 44, 50, 56, 61, 66, 70)
+    [0] = 7,   // ESC - far left
+    [6] = 6,   // F1
+    [12] = 5,  // F2
+    [18] = 4,  // F3
+    [23] = 3,  // F4
+    [28] = 2,  // F5
+    [34] = 1,  // F6
+    [39] = 0,  // F7 - center
+    [44] = 1,  // F8
+    [50] = 2,  // F9
+    [56] = 3,  // F10
+    [61] = 4,  // F11
+    [66] = 5,  // F12
+    [70] = 6,  // Del
+    [73] = 7,  // Home
+
+    // Row 1: ~ to Backspace (indices 1, 7, 13, 19, 24, 29, 35, 40, 45, 51, 57, 62, 79, 86)
+    [1] = 7,   // ~
+    [7] = 6,   // 1
+    [13] = 5,  // 2
+    [19] = 4,  // 3
+    [24] = 3,  // 4
+    [29] = 2,  // 5
+    [35] = 1,  // 6
+    [40] = 0,  // 7 - center
+    [45] = 1,  // 8
+    [51] = 2,  // 9
+    [57] = 3,  // 0
+    [62] = 4,  // -
+    [79] = 5,  // =
+    [86] = 6,  // Backspace
+    [76] = 7,  // PgUp
+
+    // Row 2: Tab to ] (indices 2, 8, 14, 20, 25, 30, 36, 41, 46, 52, 58, 63, 90)
+    [2] = 7,   // Tab
+    [8] = 6,   // Q
+    [14] = 5,  // W
+    [20] = 4,  // E
+    [25] = 3,  // R
+    [30] = 2,  // T
+    [36] = 1,  // Y
+    [41] = 0,  // U - center
+    [46] = 1,  // I
+    [52] = 2,  // O
+    [58] = 3,  // P
+    [63] = 4,  // [
+    [90] = 5,  // ]
+
+    // Row 3: Caps to Enter (indices 3, 9, 15, 21, 26, 31, 37, 42, 47, 53, 59, 64, 95, 97)
+    [3] = 7,   // Caps
+    [9] = 6,   // A
+    [15] = 5,  // S
+    [21] = 4,  // D
+    [26] = 3,  // F
+    [31] = 2,  // G
+    [37] = 1,  // H - center
+    [42] = 0,  // J - center
+    [47] = 1,  // K
+    [53] = 2,  // L
+    [59] = 3,  // ;
+    [64] = 4,  // '
+    [95] = 5,  // #
+    [97] = 6,  // Enter
+    [87] = 7,  // PgDn
+
+    // Row 4: Shift to Shift (indices 4, 67, 10, 16, 22, 27, 32, 38, 43, 48, 54, 60, 91)
+    [4] = 7,   // Shift L
+    [67] = 6,  // backslash
+    [10] = 5,  // Z
+    [16] = 4,  // X
+    [22] = 3,  // C
+    [27] = 2,  // V
+    [32] = 1,  // B
+    [38] = 0,  // N - center
+    [43] = 1,  // M
+    [48] = 2,  // ,
+    [54] = 3,  // .
+    [60] = 4,  // /
+    [91] = 5,  // Shift R
+    [94] = 6,  // Up
+    [83] = 7,  // End
+
+    // Row 5: Ctrl to Right (indices 5, 11, 17, 33, 49, 55, 65, 96, 98, 80)
+    [5] = 7,   // Ctrl L
+    [11] = 6,  // Win
+    [17] = 5,  // Alt L
+    [33] = 0,  // Space - center
+    [49] = 3,  // Alt R
+    [55] = 4,  // FN
+    [65] = 5,  // Ctrl R
+    [96] = 6,  // Left
+    [98] = 7,  // Down
+    [80] = 7,  // Right
+
+    // Side LEDs - left side (far left = high distance)
+    [68] = 8,  // Side L 1
+    [71] = 8,  // Side L 2
+    [74] = 8,  // Side L 3
+    [77] = 8,  // Side L 4
+    [81] = 8,  // Side L 5
+    [84] = 8,  // Side L 6
+    [88] = 8,  // Side L 7
+    [92] = 8,  // Side L 8
+
+    // Side LEDs - right side (far right = high distance)
+    [69] = 8,  // Side R 1
+    [72] = 8,  // Side R 2
+    [75] = 8,  // Side R 3
+    [78] = 8,  // Side R 4
+    [82] = 8,  // Side R 5
+    [85] = 8,  // Side R 6
+    [89] = 8,  // Side R 7
+    [93] = 8,  // Side R 8
+};
+
+// Start the visor effect animation
+void start_visor_effect(void) {
+    visor_effect_active = true;
+    visor_effect_start_time = timer_read32();
+}
+
+// Reset state on USB connection/reconnection
+void keyboard_pre_init_user(void) {
+    // Reset OS detection state - will be set when OS is detected
+    os_detected = false;
+    visor_effect_active = false;
+    keyboard_init_time = timer_read32();
+}
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 //      ESC      F1       F2       F3       F4       F5       F6       F7       F8       F9       F10      F11      F12	     Del           Rotary(Mute)
@@ -151,17 +292,83 @@ bool process_detected_host_os_kb(os_variant_t detected_os) {
             break;
     }
 
+    // Mark OS as detected and start the visor effect animation
+    os_detected = true;
+    start_visor_effect();
+
     return true;
 }
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    // If OS not yet detected, check for timeout
+    if (!os_detected) {
+        if (timer_elapsed32(keyboard_init_time) >= OS_DETECTION_TIMEOUT) {
+            // Timeout reached - no OS detected, use default layer and start visor
+            os_detected = true;
+            current_base_layer = DEFAULT_LAYER;
+            set_single_default_layer(DEFAULT_LAYER);
+            start_visor_effect();
+        } else {
+            // Still waiting for OS detection - keep LEDs off
+            for (uint8_t i = led_min; i < led_max; i++) {
+                rgb_matrix_set_color(i, 0, 0, 0);
+            }
+            return false;
+        }
+    }
+
     // Get current active layer, or use base layer if none active
     uint8_t layer = get_highest_layer(layer_state);
     if (layer == 0) {
         layer = current_base_layer;
     }
 
-    // Apply layer-specific LED colors from ledmap
+    // Handle visor effect animation
+    if (visor_effect_active) {
+        uint32_t elapsed = timer_elapsed32(visor_effect_start_time);
+
+        if (elapsed >= VISOR_EFFECT_DURATION) {
+            // Animation complete
+            visor_effect_active = false;
+        } else {
+            // Calculate current wave position (0-8, representing distance from center)
+            // The wave expands outward from center
+            uint8_t current_wave = (elapsed * 9) / VISOR_EFFECT_DURATION;
+
+            // Get target color from current layer's ledmap
+            for (uint8_t i = led_min; i < led_max; i++) {
+                uint8_t distance = pgm_read_byte(&led_distance_from_center[i]);
+                ledmap target_led = ledmaps[layer][i];
+
+                if (distance <= current_wave) {
+                    // This LED has been reached - show target color
+                    if (target_led.r != 0 || target_led.g != 0 || target_led.b != 0) {
+                        rgb_matrix_set_color(i, target_led.r, target_led.g, target_led.b);
+                    }
+                } else {
+                    // This LED hasn't been reached yet - stay off
+                    rgb_matrix_set_color(i, 0, 0, 0);
+                }
+            }
+
+            // Override with Caps Lock indicator even during visor effect
+            if (host_keyboard_led_state().caps_lock) {
+                const uint8_t side_leds_left[] = SIDE_LED_LEFT;
+                const uint8_t side_leds_right[] = SIDE_LED_RIGHT;
+
+                for (uint8_t i = 0; i < SIDE_LED_COUNT; i++) {
+                    rgb_matrix_set_color(side_leds_left[i], LED_RED_RGB);
+                }
+                for (uint8_t i = 0; i < SIDE_LED_COUNT; i++) {
+                    rgb_matrix_set_color(side_leds_right[i], LED_RED_RGB);
+                }
+            }
+
+            return false;
+        }
+    }
+
+    // Normal operation: Apply layer-specific LED colors from ledmap
     if (layer < sizeof(ledmaps) / sizeof(ledmaps[0])) {
         for (uint8_t i = led_min; i < led_max; i++) {
             ledmap led = ledmaps[layer][i];

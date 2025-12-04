@@ -32,6 +32,13 @@ enum layer_number {
 #define SIDE_LED_RIGHT {69, 72, 75, 78, 82, 85, 89, 93}
 #define SIDE_LED_COUNT 8
 
+// Visor effect configuration
+#define VISOR_EFFECT_DURATION 750   // Total duration in ms
+#define VISOR_EFFECT_STEPS 8        // Number of wave steps (columns from center outward)
+
+// OS detection timeout - if no OS detected after this time, show default layer color
+#define OS_DETECTION_TIMEOUT 1000   // 1 second
+
 // LED Color definitions for ledmap (using custom prefix to avoid conflicts)
 #define LED_OFF____ {0, 0, 0}
 #define LED_RED____ {255, 0, 0}
