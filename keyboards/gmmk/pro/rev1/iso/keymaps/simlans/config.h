@@ -6,7 +6,7 @@
 #define NO_USB_STARTUP_CHECK
 
 // RGB Matrix Configuration
-#define RGB_MATRIX_TIMEOUT 0  // Never timeout
+#define RGB_MATRIX_TIMEOUT 60000  // Turn off after 1 minute (in milliseconds)
 #define RGB_MATRIX_DEFAULT_MODE RGB_MATRIX_SOLID_COLOR
 #define RGB_MATRIX_DEFAULT_HUE 0
 #define RGB_MATRIX_DEFAULT_SAT 0

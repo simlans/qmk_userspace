@@ -62,7 +62,7 @@ typedef struct {
 // RGB Matrix Layout Macro
 // Maps visual keyboard layout to LED indices
 // Based on GMMK Pro Rev1 ISO LED mapping
-#define RGB_MATRIX_LAYOUT_LEDMAP(
+#define RGB_MATRIX_LAYOUT_LEDMAP( \
         lu1,                                                                                 ru1, \
         lu2, k00, k06, k12, k18, k23, k28, k34, k39, k44, k50, k56, k61, k66, k70,      k73, ru2, \
         lu3, k01, k07, k13, k19, k24, k29, k35, k40, k45, k51, k57, k62, k79, k86,      k76, ru3, \
